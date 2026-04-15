@@ -19,13 +19,26 @@ const sectionLinks = [
   "13. Casos de uso de NotebookLM",
   "14. Prompts para NotebookLM",
   "15. Gemini vs NotebookLM",
-  "16. Actividades para alumnos",
+  "16. Actividades prácticas",
   "17. Buenas prácticas de prompting",
   "18. Errores comunes al usar IA",
   "19. Novedades recientes",
   "20. Set de prompts",
   "21. Prompt engineering avanzado",
   "22. Plantillas de prompts",
+]
+
+const workshopHighlights = [
+  { value: "22", label: "módulos estructurados" },
+  { value: "7", label: "bloques de prompts aplicables" },
+  { value: "5", label: "actividades listas para facilitar" },
+]
+
+const presentationChecklist = [
+  "Arranca con una demostración breve para captar atención desde el minuto uno.",
+  "Mantén una dinámica de práctica en cada bloque para consolidar el aprendizaje.",
+  "Alterna momentos de explicación, trabajo colaborativo y retroalimentación guiada.",
+  "Cierra cada tema con una evidencia concreta: resumen, tabla, quiz o mini presentación.",
 ]
 
 const gemExamples = [
@@ -166,10 +179,10 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <section id={id} className="scroll-mt-24">
-      <Card className="border-border/80">
+    <section id={id} className="scroll-mt-28">
+      <Card className="border-border/70 bg-card/95 shadow-sm transition-shadow hover:shadow-md">
         <CardHeader>
-          <CardTitle className="text-2xl md:text-3xl">{title}</CardTitle>
+          <CardTitle className="text-2xl md:text-3xl tracking-tight">{title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm md:text-base leading-relaxed">
           {children}
@@ -181,36 +194,62 @@ function Section({
 
 export default function WorkshopPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 text-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 py-10 md:py-14">
-        <header className="mb-8 md:mb-12 rounded-2xl border bg-card p-6 md:p-10">
+        <header className="relative mb-8 overflow-hidden rounded-2xl border border-border/70 bg-card/95 p-6 shadow-lg md:mb-12 md:p-10">
+          <div className="pointer-events-none absolute -top-20 right-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 left-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+
           <Badge variant="secondary" className="mb-4">
-            Taller completo: Gemini + NotebookLM para preparatoria
+            Programa integral listo para presentación
           </Badge>
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-            Curso práctico de IA educativa para estudiantes de 13 a 18 años
+            Taller profesional de IA educativa con Gemini y NotebookLM
           </h1>
           <p className="text-muted-foreground md:text-lg">
-            Esta página es un material didáctico extenso y listo para impartirse en taller.
-            Incluye fundamentos, prompting, prácticas guiadas, Gems en Gemini, NotebookLM,
-            novedades recientes, plantillas reutilizables y un prompt completo para Cloud Agent.
+            Material didáctico completo para impartir una experiencia formativa clara, dinámica y
+            moderna. Incluye fundamentos, prompting, prácticas guiadas, Gems en Gemini, NotebookLM,
+            novedades recientes y plantillas reutilizables en formato listo para ejecución.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <Badge>Nivel: básico a intermedio</Badge>
-            <Badge variant="outline">Enfoque: no técnico</Badge>
-            <Badge variant="outline">Formato: práctico y aplicado</Badge>
-            <Badge variant="outline">Tono: claro, visual y amigable</Badge>
+            <Badge>Versión final</Badge>
+            <Badge variant="outline">Formato práctico y aplicado</Badge>
+            <Badge variant="outline">Diseño orientado a presentación</Badge>
+            <Badge variant="outline">Contenido actualizado</Badge>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild>
+              <a href="#seccion-1">Iniciar recorrido del taller</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href="#seccion-22">Ir a plantillas reutilizables</a>
+            </Button>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {workshopHighlights.map((item) => (
+              <Card key={item.label} className="border-border/60 bg-background/70">
+                <CardContent className="pt-6">
+                  <p className="text-3xl font-bold tracking-tight">{item.value}</p>
+                  <p className="text-sm text-muted-foreground">{item.label}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </header>
 
-        <nav className="mb-10 rounded-2xl border bg-card p-6">
-          <h2 className="text-xl font-semibold mb-4">Mapa del taller (22 secciones)</h2>
+        <nav className="mb-10 rounded-2xl border border-border/70 bg-card/90 p-6 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
+          <h2 className="text-xl font-semibold mb-2">Mapa del taller (22 secciones)</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Navegación rápida para conducir la sesión con ritmo y estructura.
+          </p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {sectionLinks.map((link, index) => (
               <a
                 key={link}
                 href={`#seccion-${index + 1}`}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {link}
               </a>
@@ -507,7 +546,7 @@ export default function WorkshopPage() {
             </p>
           </Section>
 
-          <Section id="seccion-8" title="SECCIÓN 8 — Casos de uso de Gemini para estudiantes">
+          <Section id="seccion-8" title="SECCIÓN 8 — Casos de uso de Gemini en entornos educativos">
             <div className="grid gap-4 md:grid-cols-2">
               {[
                 "Estudiar temas complejos con explicaciones por niveles.",
@@ -699,7 +738,7 @@ export default function WorkshopPage() {
             </p>
           </Section>
 
-          <Section id="seccion-16" title="SECCIÓN 16 — Actividades para alumnos">
+          <Section id="seccion-16" title="SECCIÓN 16 — Actividades prácticas">
             <div className="space-y-4">
               {[
                 {
@@ -763,10 +802,10 @@ export default function WorkshopPage() {
             </ul>
           </Section>
 
-          <Section id="seccion-19" title="SECCIÓN 19 — Novedades recientes (investigado con Exa)">
+          <Section id="seccion-19" title="SECCIÓN 19 — Novedades recientes">
             <p>
-              Esta sección se actualizó con búsqueda web reciente usando MCP de Exa, priorizando cambios
-              y funcionalidades recientes en Gemini y NotebookLM.
+              Resumen de funcionalidades y cambios recientes en Gemini y NotebookLM para mantener el
+              contenido vigente y alineado con las mejoras más relevantes.
             </p>
             <div className="space-y-4">
               <Card>
@@ -849,7 +888,7 @@ export default function WorkshopPage() {
 
           <Section id="seccion-21" title="SECCIÓN 21 — Prompt engineering avanzado (nivel básico)">
             <p>
-              Marco práctico recomendado para estudiantes: <strong>C-O-F-R</strong>
+              Marco práctico recomendado: <strong>C-O-F-R</strong>
               (Contexto, Objetivo, Formato, Restricciones).
             </p>
             <div className="grid gap-4 md:grid-cols-2">
@@ -918,82 +957,28 @@ export default function WorkshopPage() {
           </Section>
         </div>
 
-        <section id="anexo-prompt-cloud-agent" className="mt-10 scroll-mt-24">
+        <section id="anexo-presentacion" className="mt-10 scroll-mt-24">
           <Card className="border-primary/30">
             <CardHeader>
-              <CardTitle className="text-2xl">ANEXO — Prompt completo para Cloud Agent (copiar y pegar)</CardTitle>
-              <CardDescription>
-                Entregable principal solicitado: versión lista para ejecutar en un agente.
-              </CardDescription>
+              <CardTitle className="text-2xl">ANEXO — Checklist de facilitación para presentación</CardTitle>
+              <CardDescription>Guía breve para asegurar una ejecución fluida y profesional.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <pre className="whitespace-pre-wrap rounded-lg bg-muted p-4 text-xs md:text-sm leading-relaxed">
-{`Actúa como:
-Investigador experto en IA educativa
-Diseñador instruccional
-Especialista en prompting
-Experto en Gemini
-Experto en NotebookLM
-Arquitecto de contenido educativo
-
-Tu tarea es crear un taller completo, profundo y profesional para enseñar a estudiantes de preparatoria a usar eficientemente Gemini y NotebookLM.
-
-El contenido debe ser extenso, detallado, pedagógico, práctico y actualizado.
-La página final debe verse nutrida de contenido, completa, didáctica, profesional y moderna.
-
-Audiencia:
-- Estudiantes de 13 a 18 años
-- Nivel básico a intermedio
-- Público no técnico
-
-Tono:
-- Claro, didáctico, visual, ejemplificado, amigable y educativo
-- Evita lenguaje técnico excesivo
-
-Estructura obligatoria:
-1) Introducción a la IA
-2) Qué es un prompt
-3) Cómo escribir buenos prompts
-4) Cómo usar el mismo LLM para mejorar tus prompts (prompt refinement, iteration, optimization)
-5) Gemini
-6) Features de Gemini (Chat, Deep Research, File analysis, Image generation, Video generation, Long context, Memory, Notebooks, Canvas, Integrations, Gems)
-7) Gems en Gemini (qué son, cómo funcionan, cómo crearlos, usarlos, compartirlos y reutilizarlos; cuándo usar y cuándo no)
-8) Casos de uso de Gemini
-9) Ejemplos de prompts para Gemini
-10) Comparación de prompts (Mal prompt / Buen prompt / Resultado esperado)
-11) NotebookLM
-12) Features de NotebookLM (Document analysis, Source-based answers, Audio/Podcast/Video generation, Slides, Flashcards, Quizzes, Study guides, Mind maps, Infographics, Tables)
-13) Casos de uso de NotebookLM
-14) Ejemplos de prompts para NotebookLM
-15) Comparación Gemini vs NotebookLM (tabla y cuándo usar cada uno)
-16) Actividades para alumnos
-17) Buenas prácticas de prompting
-18) Errores comunes al usar IA
-19) Novedades recientes de Gemini y NotebookLM
-20) Set de prompts (estudio, investigación, resúmenes, presentaciones, videos, audios, exámenes)
-21) Prompt engineering avanzado (nivel básico) con marco: Contexto, Objetivo, Formato, Restricciones
-22) Plantillas de prompts reutilizables
-
-Reglas pedagógicas clave:
-- Enseñar que no hay que escribir el prompt perfecto en el primer intento.
-- Enseñar a usar el mismo LLM para refinar prompts.
-- Incluir loop: prompt inicial -> respuesta -> refinamiento -> prompt optimizado.
-
-Si hay dudas o incertidumbre:
-- Usa MCP de Exa para buscar información reciente.
-- Prioriza features nuevas, cambios recientes, limitaciones y novedades oficiales.
-
-Output esperado:
-- Una página educativa completa, extensa, profesional y lista para usarse en un taller real.`}
-              </pre>
+            <CardContent className="space-y-3">
+              {presentationChecklist.map((item) => (
+                <Card key={item} className="border-border/60 bg-background/60">
+                  <CardContent className="pt-6 text-sm md:text-base leading-relaxed">
+                    {item}
+                  </CardContent>
+                </Card>
+              ))}
             </CardContent>
           </Card>
         </section>
 
-        <footer className="mt-10 rounded-2xl border bg-card p-6">
+        <footer className="mt-10 rounded-2xl border border-border/70 bg-card/95 p-6">
           <p className="text-sm text-muted-foreground">
-            Recomendación de uso docente: impartir este material en 2 bloques (fundamentos + práctica),
-            con actividades colaborativas, revisión de prompts por pares y una entrega final por equipo.
+            Recomendación de uso: impartir este material en dos bloques (fundamentos + práctica), con
+            actividades colaborativas, revisión de prompts por pares y una entrega final de cierre.
           </p>
           <div className="mt-4">
             <Button asChild>
