@@ -1,658 +1,1008 @@
-"use client"
-
-import { useEffect, useState, useRef } from "react"
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
-import { Moon, Sun, Github, Linkedin, Mail, ExternalLink, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import type { ReactNode } from "react"
 
-import Image from "next/image"
+const sectionLinks = [
+  "1. Introducción a la IA",
+  "2. Qué es un prompt",
+  "3. Cómo escribir buenos prompts",
+  "4. Refinar prompts con el mismo LLM",
+  "5. Qué es Gemini",
+  "6. Features de Gemini",
+  "7. Gems en Gemini",
+  "8. Casos de uso de Gemini",
+  "9. Prompts para Gemini",
+  "10. Comparación de prompts",
+  "11. Qué es NotebookLM",
+  "12. Features de NotebookLM",
+  "13. Casos de uso de NotebookLM",
+  "14. Prompts para NotebookLM",
+  "15. Gemini vs NotebookLM",
+  "16. Actividades para alumnos",
+  "17. Buenas prácticas de prompting",
+  "18. Errores comunes al usar IA",
+  "19. Novedades recientes",
+  "20. Set de prompts",
+  "21. Prompt engineering avanzado",
+  "22. Plantillas de prompts",
+]
 
-export default function Portfolio() {
-  const [darkMode, setDarkMode] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const heroRef = useRef(null)
+const gemExamples = [
+  {
+    title: "Gem tutor de matemáticas",
+    objective: "Explicar temas paso a paso con lenguaje de preparatoria y mini ejercicios.",
+    files: "Guía de álgebra de la escuela + lista de errores frecuentes.",
+    goodFor: "Repasar antes de exámenes y resolver dudas rápidas.",
+  },
+  {
+    title: "Gem generador de exámenes",
+    objective: "Crear bancos de preguntas por dificultad y formato (opción múltiple, abiertas).",
+    files: "Temario oficial + ejemplos de reactivos previos.",
+    goodFor: "Practicar evaluaciones con retroalimentación.",
+  },
+  {
+    title: "Gem asistente de estudio",
+    objective: "Convertir apuntes en planes de estudio diarios, flashcards y checklists.",
+    files: "Apuntes de clase + calendario académico.",
+    goodFor: "Organización semanal de materias.",
+  },
+  {
+    title: "Gem creador de presentaciones",
+    objective: "Generar guiones de exposición, diapositivas sugeridas y notas del presentador.",
+    files: "Rúbrica de exposición + lecturas del proyecto.",
+    goodFor: "Preparar exposiciones con estructura profesional.",
+  },
+]
 
-  // Handle dark mode toggle
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [darkMode])
+const geminiPromptExamples = [
+  {
+    category: "Estudio",
+    prompt:
+      "Actúa como tutor de biología para preparatoria. Explícame la fotosíntesis en tres niveles: básico, intermedio y examen. Incluye una analogía cotidiana y 5 preguntas de repaso.",
+  },
+  {
+    category: "Resúmenes",
+    prompt:
+      "Resume este capítulo en 12 viñetas. Después crea una tabla con: concepto, definición simple y ejemplo real para un estudiante de 16 años.",
+  },
+  {
+    category: "Explicaciones",
+    prompt:
+      "Explícame la Revolución Industrial como si fuera una historia corta de 5 minutos, pero sin perder precisión histórica. Cierra con causa-efecto en formato de lista.",
+  },
+  {
+    category: "Presentaciones",
+    prompt:
+      "Ayúdame a construir una presentación de 8 diapositivas sobre cambio climático para preparatoria: objetivo por diapositiva, idea visual y guion oral de 30 segundos.",
+  },
+  {
+    category: "Investigación",
+    prompt:
+      "Usa Deep Research para investigar energías renovables en México. Entrega: resumen ejecutivo, datos clave, fuentes y recomendaciones para proyecto escolar.",
+  },
+  {
+    category: "Creatividad",
+    prompt:
+      "Escribe 3 ideas de campaña escolar para reducir basura. Cada idea debe incluir slogan, plan de acción de 1 semana y forma de medir impacto.",
+  },
+]
 
-  // Handle mouse position for custom cursor effect
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
+const notebookPromptExamples = [
+  "Con base en mis fuentes, crea una guía de estudio de química con secciones cortas, ejemplos y 10 preguntas de autoevaluación.",
+  "Genera un quiz de 15 preguntas mixtas (fácil, medio, difícil) usando únicamente las fuentes cargadas. Incluye explicación de cada respuesta.",
+  "Haz un mapa mental de la Revolución Mexicana a partir de mis documentos y señala relaciones entre personajes, eventos y consecuencias.",
+  "Crea flashcards para memorizar fórmulas de física. Formato: pregunta al frente, respuesta y ejemplo atrás.",
+  "Genera un audio tipo podcast de 8 minutos para repasar el tema y luego dame 5 preguntas de discusión.",
+  "Construye una tabla comparativa entre dos teorías vistas en clase solo con evidencia de las fuentes.",
+]
 
-    window.addEventListener("mousemove", handleMouseMove)
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-    }
-  }, [])
-
-  // Scroll animations
-  const { scrollYProgress } = useScroll()
-  const { scrollY } = useScroll({ target: heroRef })
-  const parallaxY = useTransform(scrollY, [0, 500], [0, 100])
-
-  // Project data
-  const projects = [
-    {
-      id: 1,
-      title: "E-Commerce Platform",
-      description: "A full-stack e-commerce solution with real-time inventory management and payment processing.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["Frontend", "Backend", "React", "Node.js", "MongoDB"],
-      github: "#",
-      demo: "#",
-    },
-    {
-      id: 2,
-      title: "AI Content Generator",
-      description: "An AI-powered application that generates custom content based on user preferences and inputs.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["AI/ML", "Frontend", "Python", "React", "TensorFlow"],
-      github: "#",
-      demo: "#",
-    },
-    {
-      id: 3,
-      title: "Health & Fitness Tracker",
-      description:
-        "Mobile application for tracking fitness goals, nutrition, and health metrics with data visualization.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["Mobile", "React Native", "Firebase", "Data Visualization"],
-      github: "#",
-      demo: "#",
-    },
-    {
-      id: 4,
-      title: "Smart Home Dashboard",
-      description: "IoT dashboard for monitoring and controlling smart home devices with real-time updates.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["IoT", "Frontend", "Backend", "React", "Node.js"],
-      github: "#",
-      demo: "#",
-    },
-    {
-      id: 5,
-      title: "Financial Analytics Platform",
-      description:
-        "Data-driven platform for financial analysis with predictive modeling and interactive visualizations.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["Data Science", "Frontend", "Python", "React", "D3.js"],
-      github: "#",
-      demo: "#",
-    },
-  ]
-
-  // Skills data
-  const skills = {
-    Frontend: [
-      { name: "🍎 Swift", proficiency: 70 },
-      { name: "📱 SwiftUI", proficiency: 70 },
-      { name: "🟨 JavaScript", proficiency: 90 },
-      { name: "⚛️ React", proficiency: 85 },
-      { name: "▲ Next.js", proficiency: 85 },
-      { name: "🎨 CSS/Tailwind", proficiency: 80 },
+const promptSet = [
+  {
+    category: "Estudio",
+    prompts: [
+      "Diseña un plan de estudio de 7 días para [materia], sesiones de 40 minutos, con objetivo diario y mini prueba final.",
+      "Explícame [tema] con palabras sencillas, luego con nivel examen, y finalmente dame un truco de memorización.",
+      "Convierte estos apuntes en una guía de repaso de 1 página con lo esencial.",
     ],
-    Backend: [
-      { name: "🟢 Node.js", proficiency: 85 },
-      { name: "🚂 Express", proficiency: 80 },
-      { name: "⚡ FastAPI", proficiency: 90 },
-      { name: "🐘 Flask", proficiency: 90 },
-      { name: "📦 Serverless", proficiency: 90 },
-      { name: "🐍 Python", proficiency: 95 },
-      { name: "🌐 RESTful APIs", proficiency: 90 },
+  },
+  {
+    category: "Investigación",
+    prompts: [
+      "Investiga [tema] con enfoque escolar: definición, contexto, datos, controversias y conclusión propia.",
+      "Dame 5 fuentes confiables para [tema] y explica por qué son confiables.",
+      "Resume tendencias recientes de [tema] en formato de tabla (tendencia, evidencia, posible impacto).",
     ],
-    Data: [
-      { name: "🍃 MongoDB", proficiency: 80 },
-      { name: "🐘 PostgreSQL", proficiency: 75 },
-      { name: "📊 Data Visualization", proficiency: 70 },
-      { name: "🧠 Machine Learning", proficiency: 65 },
-      { name: "📈 Big Data Processing", proficiency: 60 },
+  },
+  {
+    category: "Resúmenes",
+    prompts: [
+      "Resume este texto en 150 palabras y añade 5 conceptos clave.",
+      "Haz un resumen por secciones y termina con un glosario de 10 términos.",
+      "Convierte este capítulo largo en una lista de ideas memorables para examen.",
     ],
-    DevOps: [
-      { name: "🐳 Docker", proficiency: 80 },
-      { name: "🔄 CI/CD", proficiency: 80 },
-      { name: "☁️ AWS", proficiency: 85 },
-      { name: "☸️ Kubernetes", proficiency: 60 },
-      { name: "📟 Monitoring", proficiency: 70 },
+  },
+  {
+    category: "Presentaciones",
+    prompts: [
+      "Crea un guion de exposición de 5 minutos sobre [tema], con apertura, desarrollo y cierre.",
+      "Genera estructura de 10 diapositivas con mensaje principal y visual sugerido por diapositiva.",
+      "Convierte este texto en notas para presentador con tono claro y juvenil.",
     ],
-  }
+  },
+  {
+    category: "Videos",
+    prompts: [
+      "Escribe storyboard de video educativo de 60 segundos sobre [tema], con narración y escenas.",
+      "Dame 3 ideas de video para explicar [tema] a estudiantes de 15 años.",
+      "Transforma este resumen en guion de video corto para redes escolares.",
+    ],
+  },
+  {
+    category: "Audios",
+    prompts: [
+      "Convierte este contenido en un episodio de audio de 6 minutos con introducción, desarrollo y cierre.",
+      "Genera una versión tipo debate de audio con dos posturas sobre [tema].",
+      "Crea un audio-resumen rápido para repasar antes del examen en 3 minutos.",
+    ],
+  },
+  {
+    category: "Exámenes",
+    prompts: [
+      "Crea un examen diagnóstico de [materia] con 20 preguntas y rúbrica.",
+      "Genera 10 reactivos de opción múltiple con distractores plausibles y explicación.",
+      "Diseña un examen mixto (5 opción múltiple, 5 abiertas, 1 caso práctico).",
+    ],
+  },
+]
 
-  // Education & Experience data
-  const timeline = [
-    {
-      id: 1,
-      type: "experience",
-      title: "Full Stack Engineer",
-      organization: "Freelance",
-      period: "April 2022 - Present",
-      description: "Built scalable, high-performance bots with interactive dashboards using AWS, Azure, and GCP. Developed full-stack solutions with real-time monitoring, data visualization, and intuitive UI/UX. Created a responsive frontend for a multi-location laundry management system, enhancing inventory tracking and customer insights.",
-    },
-    {
-      id: 2,
-      type: "education",
-      title: "B.S. Actuarial Science",
-      organization: "National Autonomous University of Mexico",
-      period: "September 2022 - Present",
-      description: "Developed strong logical thinking and formal mathematical knowledge through rigorous coursework in calculus, statistics, probability theory, and financial mathematics. Applied computational methods to solve complex problems, strengthening my analytical capabilities and systematic approach to problem-solving.",
-    },
-    {
-      id: 3,
-      type: "experience",
-      title: "Software Engineer",
-      organization: "Starlearn",
-      period: "October 2022 - November 2023",
-      description:
-        "Built full-stack solutions for an educational platform, integrating intuitive UI with data-driven backend enhancements. Developed responsive dashboards for insights and interactive features to improve the student learning experience. Collaborated with cross-functional teams to ensure seamless user experience and technical excellence.",
-    },
-    {
-      id: 4,
-      type: "education",
-      title: "B.S. Data Science",
-      organization: "National Autonomous University of Mexico",
-      period: "August 2024 - Present",
-      description: "Studying advanced data science concepts, including machine learning, deep learning, and big data processing. Developed predictive models for real-world applications. Applied data visualization techniques to communicate insights effectively and drive data-driven decisions.",
-    },
-    {
-      id: 5,
-      type: "education",
-      title: "iOS Development Lab Certification",
-      organization: "iOS Development Lab - FES Acatlán",
-      period: "2024",
-      description: "Intensive program focused on iOS app development using Swift and SwiftUI.",
-    },
-    {
-      id: 6,
-      type: "experience",
-      title: "Data Engineer Intern",
-      organization: "Entropia.AI",
-      period: "January 2025 - Present",
-      description: "Developed a data extraction system for housing statistics reports for the Inter-American Development Bank, covering nearly all countries in the Americas. Used API reverse engineering to extract and transform unstructured data. Designed automated data collection strategies with serverless architectures and cloud services.",
-    },
-  ].reverse()
-
-  // Filter projects by category
-  const [activeFilter, setActiveFilter] = useState("All")
-  const filterCategories = ["All", "Frontend", "Backend", "Mobile", "Data Science", "AI/ML", "IoT"]
-
-  const filteredProjects =
-    activeFilter === "All" ? projects : projects.filter((project) => project.tags.includes(activeFilter))
-
+function Section({
+  id,
+  title,
+  children,
+}: {
+  id: string
+  title: string
+  children: ReactNode
+}) {
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Custom cursor effect */}
-      <div
-        className="fixed w-8 h-8 rounded-full bg-primary/20 pointer-events-none z-50 hidden md:block"
-        style={{
-          left: `${mousePosition.x}px`,
-          top: `${mousePosition.y}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-      />
+    <section id={id} className="scroll-mt-24">
+      <Card className="border-border/80">
+        <CardHeader>
+          <CardTitle className="text-2xl md:text-3xl">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 text-sm md:text-base leading-relaxed">
+          {children}
+        </CardContent>
+      </Card>
+    </section>
+  )
+}
 
-      {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-xl font-semibold"
-          >
-            @guzmandam
-          </motion.div>
-
-          <motion.nav
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="hidden md:flex space-x-8"
-          >
-            <a href="#about" className="hover:text-primary transition-colors">
-              👤 About
-            </a>
-            <a href="#projects" className="hover:text-primary transition-colors">
-              🚀 Projects
-            </a>
-            <a href="#skills" className="hover:text-primary transition-colors">
-              💻 Skills
-            </a>
-            <a href="#experience" className="hover:text-primary transition-colors">
-              📚 Experience
-            </a>
-            <a href="#contact" className="hover:text-primary transition-colors">
-              📬 Contact
-            </a>
-          </motion.nav>
-
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex items-center space-x-4"
-          >
-            <Button variant="ghost" size="icon" onClick={() => setDarkMode(!darkMode)} aria-label="Toggle dark mode">
-              {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-          </motion.div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section ref={heroRef} className="min-h-screen flex items-center justify-center relative pt-16">
-        <motion.div style={{ y: parallaxY }} className="absolute inset-0 z-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/30 blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-secondary/30 blur-3xl" />
-        </motion.div>
-
-        <div className="container mx-auto px-4 z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              🤖 <br />
-              Software Engineer<br />
-              <span className="text-primary">iOS & AI Enthusiast</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              Crafting elegant solutions to complex problems with clean, efficient code.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button asChild size="lg" className="rounded-full">
-                <a href="#projects">View My Work</a>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full">
-                <a href="#contact">Get In Touch</a>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-        >
-          <div className="flex flex-col items-center">
-            <p className="text-sm text-muted-foreground mb-2">Scroll to explore</p>
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-              className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center"
-            >
-              <motion.div
-                animate={{ y: [0, 15, 0] }}
-                transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-                className="w-1.5 h-1.5 bg-primary rounded-full mt-2"
-              />
-            </motion.div>
+export default function WorkshopPage() {
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 md:py-14">
+        <header className="mb-8 md:mb-12 rounded-2xl border bg-card p-6 md:p-10">
+          <Badge variant="secondary" className="mb-4">
+            Taller completo: Gemini + NotebookLM para preparatoria
+          </Badge>
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
+            Curso práctico de IA educativa para estudiantes de 13 a 18 años
+          </h1>
+          <p className="text-muted-foreground md:text-lg">
+            Esta página es un material didáctico extenso y listo para impartirse en taller.
+            Incluye fundamentos, prompting, prácticas guiadas, Gems en Gemini, NotebookLM,
+            novedades recientes, plantillas reutilizables y un prompt completo para Cloud Agent.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Badge>Nivel: básico a intermedio</Badge>
+            <Badge variant="outline">Enfoque: no técnico</Badge>
+            <Badge variant="outline">Formato: práctico y aplicado</Badge>
+            <Badge variant="outline">Tono: claro, visual y amigable</Badge>
           </div>
-        </motion.div>
-      </section>
+        </header>
 
-      {/* About Section */}
-      <section id="about" className="py-20 relative">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="max-w-5xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">About Me</h2>
-
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="relative">
-                <div className="aspect-square rounded-2xl overflow-hidden bg-muted relative">
-                  <Image
-                    src="/assets/profile.png"
-                    height={300}
-                    width={300}
-                    alt="Profile"
-                    className="object-cover w-full h-full"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/10 to-transparent" />
-                </div>
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
-              </div>
-
-              <div>
-              <h3 className="text-2xl font-bold mb-4">Software Engineer | AI & Backend Specialist</h3>
-              <h3 className="text-xl font-bold mb-4">Building Scalable & Intelligent Systems for the Apple Ecosystem</h3>
-                <p className="text-muted-foreground mb-6">
-                I specialize in backend development with Python, designing scalable and intelligent systems. Now, I&apos;m expanding my expertise by integrating AI, 
-                backend engineering, and UI design to create impactful applications within the Apple ecosystem—transforming complex challenges into elegant, 
-                user-centric solutions.
-                </p>
-                <p className="text-muted-foreground mb-6">
-                I believe in writing clean, maintainable code that scales effortlessly. My approach is driven by thoughtful design systems and component-based 
-                architecture, ensuring consistency, accessibility, and long-term reliability in every application I build.
-                </p>
-                <p className="text-primary mb-8">
-                I&apos;m applying for the Apple Developer Program scholarship to deepen my Swift expertise and refine my ability to craft elegant, user-focused applications
-                tailored for the Apple ecosystem.
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {[
-                  { name: "Swift", emoji: "🍎" },
-                  { name: "Python", emoji: "🐍" },
-                  { name: "React", emoji: "⚛️" },
-                  { name: "UI/UX", emoji: "🎨" },
-                  { name: "JavaScript", emoji: "🟡" },
-                  { name: "NextJS", emoji: "▲" },
-                  ].map((skill) => (
-                  <Badge key={skill.name} variant="secondary" className="text-sm py-1 px-3">
-                    {skill.emoji} {skill.name}
-                  </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section id="projects" className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="max-w-6xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Featured Projects</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-              A selection of my recent work spanning various domains and technologies.
-            </p>
-
-            <div className="mb-8 flex justify-center">
-              <div className="flex flex-wrap gap-2 justify-center">
-                {filterCategories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={activeFilter === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setActiveFilter(category)}
-                    className="rounded-full"
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence mode="wait">
-                {filteredProjects.map((project) => (
-                  <motion.div
-                    key={project.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    layout
-                  >
-                    <Card className="h-full overflow-hidden group hover:border-primary/50 transition-all duration-300">
-                      <div className="overflow-hidden">
-                        <Image
-                          src={project.image || "/placeholder.svg"}
-                          width={600}
-                          height={400}
-                          alt={project.title}
-                          className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                      <CardHeader>
-                        <CardTitle>{project.title}</CardTitle>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {project.tags.slice(0, 3).map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {project.tags.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{project.tags.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <CardDescription className="text-sm">{project.description}</CardDescription>
-                      </CardContent>
-                      <CardFooter className="flex justify-between">
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={project.github} target="_blank" rel="noopener noreferrer">
-                            <Github className="mr-2 h-4 w-4" />
-                            Code
-                          </a>
-                        </Button>
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 h-4 w-4" />
-                            Demo
-                          </a>
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section id="skills" className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="max-w-5xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Technical Skills</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-              My expertise spans across various technologies and domains. Currently, I&apos;m expanding my expertise into Swift and iOS development.
-            </p>
-
-            <Tabs defaultValue="Frontend" className="w-full">
-              <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
-                {Object.keys(skills).map((category) => (
-                  <TabsTrigger key={category} value={category} className="text-sm md:text-base">
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {Object.entries(skills).map(([category, skillList]) => (
-                <TabsContent key={category} value={category} className="space-y-8">
-                  <div className="grid gap-6">
-                    {skillList.map((skill, index) => (
-                      <motion.div
-                        key={skill.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                        className="space-y-2"
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">{skill.name}</span>
-                          <span className="text-sm text-muted-foreground">{skill.proficiency}%</span>
-                        </div>
-                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${skill.proficiency}%` }}
-                            transition={{ duration: 1, delay: 0.2 }}
-                            className="h-full bg-primary rounded-full"
-                          />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Experience Section */}
-      <section id="experience" className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Education & Experience</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-              My academic and professional journey.
-            </p>
-
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-border transform md:translate-x-px" />
-
-              <div className="space-y-12">
-                {timeline.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className={cn("relative flex flex-col md:flex-row", index % 2 === 0 ? "md:flex-row-reverse" : "")}
-                  >
-                    <div className="flex-1 md:w-1/2" />
-
-                    {/* Timeline dot */}
-                    <div className="absolute left-0 md:left-1/2 top-0 w-5 h-5 rounded-full border-4 border-background bg-primary transform -translate-x-1/2" />
-
-                    <div className={cn("flex-1 md:w-1/2 pl-8 md:pl-0", index % 2 === 0 ? "md:pr-12" : "md:pl-12")}>
-                      <div className="bg-card p-6 rounded-lg border shadow-sm">
-                        <Badge variant={item.type === "education" ? "default" : "secondary"} className="mb-2">
-                          {item.type === "education" ? "Education" : "Experience"}
-                        </Badge>
-                        <h3 className="text-xl font-semibold">{item.title}</h3>
-                        <p className="text-muted-foreground">{item.organization}</p>
-                        <p className="text-sm text-muted-foreground mb-4">{item.period}</p>
-                        <p className="text-sm">{item.description}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              📩 <br/> Get In Touch
-              </h2>
-            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-              Interested in working together or have a question? Feel free to reach out.
-            </p>
-
-            <div className="flex justify-center space-x-6 mb-12">
-              <motion.a
-                href="mailto:andres.m.gd@outlook.com"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-card hover:bg-muted p-4 rounded-full border shadow-sm transition-colors"
+        <nav className="mb-10 rounded-2xl border bg-card p-6">
+          <h2 className="text-xl font-semibold mb-4">Mapa del taller (22 secciones)</h2>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {sectionLinks.map((link, index) => (
+              <a
+                key={link}
+                href={`#seccion-${index + 1}`}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <Mail className="h-6 w-6" />
-                <span className="sr-only">Email</span>
-              </motion.a>
-              <motion.a
-                href="https://github.com/guzmandam"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-card hover:bg-muted p-4 rounded-full border shadow-sm transition-colors"
-              >
-                <Github className="h-6 w-6" />
-                <span className="sr-only">GitHub</span>
-              </motion.a>
-              <motion.a
-                href="https://linkedin.com/in/guzmandam"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-card hover:bg-muted p-4 rounded-full border shadow-sm transition-colors"
-              >
-                <Linkedin className="h-6 w-6" />
-                <span className="sr-only">LinkedIn</span>
-              </motion.a>
-            </div>
-
-            <Button asChild size="lg" className="rounded-full">
-              <a href="mailto:andres.m.gd@outlook.com">
-                Let&apos;s Connect
-                <ChevronRight className="ml-2 h-4 w-4" />
+                {link}
               </a>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} @guzmandam. No rights reserved, code freely (bugs included at no extra charge).
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 md:mt-0">
-              Designed & Built with 🍎 for the Apple Developer Program
-            </p>
+            ))}
           </div>
-        </div>
-      </footer>
+        </nav>
 
-      {/* Progress bar */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-primary origin-left z-50"
-        style={{ scaleX: scrollYProgress }}
-      />
-    </div>
+        <div className="space-y-8">
+          <Section id="seccion-1" title="SECCIÓN 1 — Introducción a la Inteligencia Artificial">
+            <p>
+              <strong>¿Qué es IA?</strong> La Inteligencia Artificial (IA) es un conjunto de tecnologías que
+              permiten que una computadora realice tareas que antes requerían inteligencia humana, como
+              comprender texto, reconocer imágenes, resumir información o proponer ideas.
+            </p>
+            <p>
+              <strong>¿Qué es Machine Learning?</strong> Es una rama de la IA donde los sistemas aprenden
+              patrones a partir de datos. En lugar de programar cada regla manualmente, entrenamos modelos
+              para que detecten relaciones y puedan predecir o generar resultados.
+            </p>
+            <p>
+              <strong>¿Qué es un LLM?</strong> Un Large Language Model (modelo grande de lenguaje) es un
+              tipo de IA entrenado con gran cantidad de texto para entender y generar lenguaje natural.
+              Gemini y NotebookLM utilizan modelos de este tipo para ayudarte a estudiar, investigar y crear.
+            </p>
+            <p>
+              <strong>¿Cómo funciona un LLM (versión preparatoria)?</strong> Imagina un estudiante que leyó
+              millones de libros y artículos. Cuando le haces una pregunta, no recuerda una sola página,
+              sino que combina patrones para construir una respuesta probable y útil. Por eso hay que
+              verificar información y dar instrucciones claras.
+            </p>
+          </Section>
+
+          <Section id="seccion-2" title="SECCIÓN 2 — Qué es un prompt">
+            <p>
+              Un <strong>prompt</strong> es la instrucción que le das a una IA para obtener un resultado.
+              Es como dar una consigna en clase: mientras más clara sea, mejor será la respuesta.
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Sirve para pedir explicaciones, resúmenes, ejercicios, ideas o productos completos.</li>
+              <li>Importa porque guía la calidad, el nivel y el formato de la respuesta.</li>
+              <li>Un prompt débil produce respuestas vagas; uno bien diseñado produce resultados útiles.</li>
+            </ul>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Ejemplo débil</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="font-mono text-sm">"Explícame historia."</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Ejemplo mejorado</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="font-mono text-sm">
+                    "Explícame la Revolución Mexicana para preparatoria en 5 párrafos, con causas,
+                    etapas y consecuencias, e incluye 3 preguntas para estudiar."
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </Section>
+
+          <Section id="seccion-3" title="SECCIÓN 3 — Cómo escribir buenos prompts">
+            <p>
+              Regla práctica: un buen prompt tiene <strong>contexto + objetivo + formato + audiencia + restricciones</strong>.
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Estructura recomendada</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li>Rol: "Actúa como tutor..."</li>
+                    <li>Objetivo: "Quiero entender..."</li>
+                    <li>Audiencia: "Para estudiantes de 16 años"</li>
+                    <li>Formato: "Entrega en tabla, lista o pasos"</li>
+                    <li>Límites: "Máximo 300 palabras / incluye 3 ejemplos"</li>
+                  </ol>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Errores comunes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Ser demasiado general.</li>
+                    <li>No indicar nivel académico.</li>
+                    <li>No pedir formato de salida.</li>
+                    <li>No solicitar fuentes cuando se investiga.</li>
+                    <li>No iterar ni mejorar el prompt.</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            <p>
+              <strong>Ejemplo:</strong> "Explícame el teorema de Pitágoras para secundaria con dibujo ASCII,
+              2 ejercicios resueltos y 3 para practicar."
+            </p>
+          </Section>
+
+          <Section
+            id="seccion-4"
+            title="SECCIÓN 4 — Cómo usar el mismo LLM para mejorar tus prompts (obligatoria)"
+          >
+            <p>
+              Esta es una habilidad central del taller: <strong>usar el modelo para mejorar tus propios prompts</strong>.
+              No necesitas escribir el prompt perfecto desde el inicio.
+            </p>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Concepto: Prompt Iteration Loop</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="font-mono text-sm whitespace-pre-wrap">
+                  Usuario escribe prompt{"\n"}↓{"\n"}
+                  LLM responde{"\n"}↓{"\n"}
+                  Usuario pide mejora{"\n"}↓{"\n"}
+                  LLM refina el prompt{"\n"}↓{"\n"}
+                  Usuario ejecuta el nuevo prompt
+                </p>
+              </CardContent>
+            </Card>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Prompt original</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Explícame la fotosíntesis.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Prompt de refinamiento</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Mejora este prompt para que genere una explicación clara para estudiantes de
+                  preparatoria e incluya ejemplos y analogías.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Resultado optimizado</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Explica la fotosíntesis para estudiantes de preparatoria en 4 secciones:
+                  definición, proceso paso a paso, analogía cotidiana y 3 preguntas de repaso.
+                </CardContent>
+              </Card>
+            </div>
+            <p className="font-semibold">
+              Regla pedagógica del taller: No escribas el prompt perfecto. Haz que el LLM lo mejore.
+            </p>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Plantillas de refinamiento rápidas</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 font-mono text-sm">
+                <p>
+                  Mejora este prompt para que sea claro, específico, con ejemplos y adecuado para
+                  estudiantes de preparatoria: [pega aquí tu prompt].
+                </p>
+                <p>
+                  Convierte este prompt en una versión con pasos, formato de salida y criterios de calidad:
+                  [prompt actual].
+                </p>
+                <p>
+                  Optimiza este prompt para reducir ambigüedad y pedir evidencias/fuentes:
+                  [prompt actual].
+                </p>
+              </CardContent>
+            </Card>
+          </Section>
+
+          <Section id="seccion-5" title="SECCIÓN 5 — Gemini: qué es, cómo funciona y para qué sirve">
+            <p>
+              Gemini es un asistente de IA multimodal que puede trabajar con texto, imágenes, archivos
+              y tareas de investigación. Se utiliza para aprender, planear proyectos, resumir contenido,
+              crear ideas y producir materiales educativos.
+            </p>
+            <p>
+              En contexto escolar, Gemini es útil como <strong>co-tutor</strong>, <strong>co-editor</strong> y
+              <strong> asistente de productividad</strong>. No reemplaza al estudiante: lo ayuda a trabajar mejor,
+              más rápido y con mayor claridad.
+            </p>
+            <p>
+              Cuando se usa bien, Gemini permite iterar: borrador inicial → mejora guiada → versión final.
+              Ese flujo desarrolla pensamiento crítico y habilidades de comunicación.
+            </p>
+          </Section>
+
+          <Section id="seccion-6" title="SECCIÓN 6 — Features de Gemini">
+            <p>Funciones clave a dominar en taller:</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                ["Chat", "Conversación para dudas, ideas y explicaciones paso a paso."],
+                ["Deep Research", "Investigación profunda que sintetiza múltiples fuentes web."],
+                ["File analysis", "Análisis de PDFs, documentos e imágenes para extraer ideas clave."],
+                ["Image generation", "Creación de imágenes para materiales visuales escolares."],
+                ["Video generation", "Generación de contenido audiovisual según disponibilidad de plan/región."],
+                ["Long context", "Capacidad de trabajar con grandes volúmenes de texto en una sola conversación."],
+                ["Memory", "Recordar preferencias o contexto para respuestas más personalizadas."],
+                ["Notebooks", "Uso de cuadernos/espacios para organizar trabajo temático."],
+                ["Canvas", "Entorno para construir y editar contenido de forma iterativa."],
+                ["Integrations", "Conexión con apps/servicios para flujo de trabajo más completo."],
+                ["Gems", "Asistentes personalizados con instrucciones reutilizables."],
+              ].map(([feature, desc]) => (
+                <Card key={feature}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{feature}</CardTitle>
+                  </CardHeader>
+                  <CardContent>{desc}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-7" title="SECCIÓN 7 — Gems en Gemini (obligatoria)">
+            <p>
+              <strong>Qué son los Gems:</strong> asistentes personalizados dentro de Gemini que guardan
+              instrucciones detalladas para tareas repetitivas, con respuestas consistentes sin reescribir
+              el prompt desde cero.
+            </p>
+            <p>
+              En otras palabras, un Gem es: <strong>especializado, configurable, reutilizable, entrenado por
+              instrucciones y personalizable con archivos</strong>.
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              {gemExamples.map((gem) => (
+                <Card key={gem.title}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{gem.title}</CardTitle>
+                    <CardDescription>{gem.objective}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <p>
+                      <strong>Archivos recomendados:</strong> {gem.files}
+                    </p>
+                    <p>
+                      <strong>Úsalo para:</strong> {gem.goodFor}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Cómo crear un Gem (paso a paso)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ol className="list-decimal pl-5 space-y-1">
+                  <li>Definir el objetivo exacto del Gem (por ejemplo: "tutor de física").</li>
+                  <li>Escribir instrucciones estables (tono, nivel, formato, límites).</li>
+                  <li>Subir archivos de referencia (temario, rúbrica, ejemplos).</li>
+                  <li>Probar con 3 preguntas reales y ajustar instrucciones.</li>
+                  <li>Guardar, nombrar claramente y reutilizar en nuevas sesiones.</li>
+                </ol>
+              </CardContent>
+            </Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Cuándo usar un Gem</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Tareas repetitivas (resúmenes semanales, quizzes, guiones).</li>
+                    <li>Cuando quieres consistencia en estilo y formato.</li>
+                    <li>Cuando necesitas rapidez sin perder calidad.</li>
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Cuándo NO usar un Gem</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Cuando la tarea es única y muy experimental.</li>
+                    <li>Cuando necesitas respuestas abiertas sin marco previo.</li>
+                    <li>Cuando aún no tienes claro el objetivo de la tarea.</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            <p>
+              Los Gems también se pueden <strong>compartir, reutilizar, modificar e integrar en Workspace</strong>,
+              funcionando como chatbots especializados para coaching, redacción y análisis documental.
+            </p>
+          </Section>
+
+          <Section id="seccion-8" title="SECCIÓN 8 — Casos de uso de Gemini para estudiantes">
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                "Estudiar temas complejos con explicaciones por niveles.",
+                "Investigar temas de proyecto y sintetizar fuentes.",
+                "Resumir textos largos en formatos cortos y accionables.",
+                "Explicar conceptos con ejemplos y analogías cotidianas.",
+                "Crear contenido: ensayos, guiones, mapas de ideas.",
+                "Hacer tareas con acompañamiento (sin copiar sin entender).",
+                "Preparar exposiciones con estructura y argumentación.",
+                "Simular preguntas de examen y practicar respuestas.",
+              ].map((item) => (
+                <Card key={item}>
+                  <CardContent className="pt-6">{item}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-9" title="SECCIÓN 9 — Ejemplos de prompts para Gemini">
+            <p>Prompts reales organizados por categoría:</p>
+            <div className="space-y-4">
+              {geminiPromptExamples.map((example) => (
+                <Card key={example.prompt}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{example.category}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="font-mono text-sm">{example.prompt}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-10" title="SECCIÓN 10 — Comparación de prompts (formato obligatorio)">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Mal prompt</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Háblame de la célula.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Buen prompt</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Explícame la célula para preparatoria en 4 apartados: estructura, funciones,
+                  diferencias entre célula animal y vegetal, y errores frecuentes. Incluye tabla
+                  comparativa y 5 preguntas de repaso.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Resultado esperado</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  Respuesta ordenada, precisa y lista para estudiar, con formato claro y evaluación.
+                </CardContent>
+              </Card>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Mal prompt</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Haz una presentación.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Buen prompt</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Crea una presentación de 7 diapositivas sobre reciclaje para estudiantes de
+                  bachillerato. Incluye objetivo, idea visual y nota oral por diapositiva.
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Resultado esperado</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  Presentación con narrativa coherente, visual y lista para exponer.
+                </CardContent>
+              </Card>
+            </div>
+          </Section>
+
+          <Section id="seccion-11" title="SECCIÓN 11 — NotebookLM: qué es, cómo funciona y para qué sirve">
+            <p>
+              NotebookLM es una herramienta enfocada en trabajar con <strong>fuentes concretas</strong>
+              (documentos, PDFs, enlaces y materiales de estudio). Su fortaleza principal es que responde
+              con base en lo que tú cargaste, útil para estudiar con evidencia y trazabilidad.
+            </p>
+            <p>
+              A diferencia de un chat general, NotebookLM está pensado para organizar conocimiento por
+              cuadernos y producir artefactos: guías, flashcards, quizzes, audios, infografías, mapas y más.
+            </p>
+          </Section>
+
+          <Section id="seccion-12" title="SECCIÓN 12 — Features de NotebookLM">
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                "Document analysis",
+                "Source-based answers",
+                "Audio generation",
+                "Podcast generation",
+                "Video generation",
+                "Slides generation",
+                "Flashcards",
+                "Quizzes",
+                "Study guides",
+                "Mind maps",
+                "Infographics",
+                "Tables",
+              ].map((feature) => (
+                <Card key={feature}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{feature}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    Uso sugerido en taller: crear materiales de aprendizaje accionables para estudiar,
+                    practicar y explicar mejor un tema.
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-13" title="SECCIÓN 13 — Casos de uso de NotebookLM">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Estudiar por fuentes (apuntes, lecturas, PDFs de clase).</li>
+              <li>Investigar sin perder trazabilidad de información.</li>
+              <li>Resumir libros y capítulos con enfoque para examen.</li>
+              <li>Preparar exámenes con quizzes y flashcards automáticas.</li>
+              <li>Organizar información compleja en mapas, tablas e infografías.</li>
+            </ul>
+          </Section>
+
+          <Section id="seccion-14" title="SECCIÓN 14 — Ejemplos de prompts para NotebookLM">
+            <div className="space-y-4">
+              {notebookPromptExamples.map((prompt) => (
+                <Card key={prompt}>
+                  <CardContent className="pt-6 font-mono text-sm">{prompt}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-15" title="SECCIÓN 15 — Comparación: Gemini vs NotebookLM">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="border p-3 text-left">Criterio</th>
+                    <th className="border p-3 text-left">Gemini</th>
+                    <th className="border p-3 text-left">NotebookLM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border p-3 font-medium">Fortaleza principal</td>
+                    <td className="border p-3">Versatilidad multimodal y creatividad.</td>
+                    <td className="border p-3">Trabajo profundo con fuentes específicas.</td>
+                  </tr>
+                  <tr>
+                    <td className="border p-3 font-medium">Mejor para</td>
+                    <td className="border p-3">Idear, explicar, redactar, prototipar.</td>
+                    <td className="border p-3">Estudiar, resumir y evaluar con base documental.</td>
+                  </tr>
+                  <tr>
+                    <td className="border p-3 font-medium">Flujo típico</td>
+                    <td className="border p-3">Prompt abierto, iteración y refinamiento.</td>
+                    <td className="border p-3">Subir fuentes, preguntar y crear artefactos.</td>
+                  </tr>
+                  <tr>
+                    <td className="border p-3 font-medium">Cuándo usar</td>
+                    <td className="border p-3">Cuando necesitas amplitud, ideas o producción rápida.</td>
+                    <td className="border p-3">Cuando necesitas precisión basada en tus materiales.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              <strong>Regla simple:</strong> Usa Gemini para explorar y construir; usa NotebookLM para
+              estudiar y validar desde fuentes.
+            </p>
+          </Section>
+
+          <Section id="seccion-16" title="SECCIÓN 16 — Actividades para alumnos">
+            <div className="space-y-4">
+              {[
+                {
+                  title: "Actividad 1: Resumen inteligente",
+                  steps:
+                    "Sube un capítulo a NotebookLM, genera resumen y luego pide a Gemini que convierta ese resumen en una infografía narrada.",
+                },
+                {
+                  title: "Actividad 2: Crear examen",
+                  steps:
+                    "Con el temario de clase, genera 20 reactivos con NotebookLM y usa Gemini para convertirlos en una práctica gamificada.",
+                },
+                {
+                  title: "Actividad 3: Crear presentación",
+                  steps:
+                    "Investiga con Gemini (Deep Research), valida con NotebookLM y arma diapositivas con guion oral.",
+                },
+                {
+                  title: "Actividad 4: Crear video",
+                  steps:
+                    "Genera script corto con Gemini, estructura visual en NotebookLM y prepara versión final de exposición audiovisual.",
+                },
+                {
+                  title: "Actividad 5: Crear audio",
+                  steps:
+                    "Transforma apuntes en Audio Overview/podcast para repasar antes del examen.",
+                },
+              ].map((activity) => (
+                <Card key={activity.title}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{activity.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>{activity.steps}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-17" title="SECCIÓN 17 — Buenas prácticas de prompting">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Sé específico: evita pedidos vagos.</li>
+              <li>Da contexto: materia, nivel, propósito.</li>
+              <li>Define formato: tabla, lista, pasos, rúbrica.</li>
+              <li>Define audiencia: edad y nivel académico.</li>
+              <li>Define objetivo: aprender, practicar, presentar, evaluar.</li>
+              <li>Pide ejemplos y contraejemplos para comprender mejor.</li>
+              <li>Solicita verificación o fuentes cuando aplique.</li>
+              <li>Usa iteración: mejora el prompt en cada ronda.</li>
+            </ul>
+          </Section>
+
+          <Section id="seccion-18" title="SECCIÓN 18 — Errores comunes al usar IA">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Prompts vagos sin contexto ni objetivo.</li>
+              <li>Falta de validación de información importante.</li>
+              <li>Copiar y pegar sin comprender el contenido.</li>
+              <li>No ajustar el nivel de dificultad al público.</li>
+              <li>No pedir estructura de salida.</li>
+              <li>Depender de una sola respuesta sin iterar.</li>
+              <li>Ignorar límites de plan, idioma o región en ciertas funciones.</li>
+            </ul>
+          </Section>
+
+          <Section id="seccion-19" title="SECCIÓN 19 — Novedades recientes (investigado con Exa)">
+            <p>
+              Esta sección se actualizó con búsqueda web reciente usando MCP de Exa, priorizando cambios
+              y funcionalidades recientes en Gemini y NotebookLM.
+            </p>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Gemini (actualizaciones destacadas)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>
+                      Deep Research con mejoras de calidad y mayor disponibilidad para más usuarios.
+                    </li>
+                    <li>
+                      Gems disponibles de forma más amplia para personalizar asistentes con instrucciones
+                      y archivos.
+                    </li>
+                    <li>
+                      Mejoras en contexto largo, integraciones con apps y experiencias más personalizadas.
+                    </li>
+                    <li>
+                      Evolución de Canvas para creación iterativa de contenidos y prototipos.
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">NotebookLM (actualizaciones destacadas)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Expansión de mapas mentales y mejoras para estudiar con fuentes complejas.</li>
+                    <li>Mejor comprensión de PDFs con imágenes y gráficas.</li>
+                    <li>
+                      Mejoras en flashcards y quizzes (progreso guardado y flujo de repaso más robusto).
+                    </li>
+                    <li>
+                      Nuevos artefactos visuales y de estudio, incluyendo mejoras de video, infografías
+                      y edición de slides según disponibilidad.
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Fuentes consultadas (Exa)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <p>
+                  1) https://blog.google/products-and-platforms/products/gemini/new-gemini-app-features-march-2025/
+                </p>
+                <p>
+                  2) https://blog.google/innovation-and-ai/models-and-research/google-labs/notebooklm-studying-help/
+                </p>
+                <p>
+                  3) https://workspaceupdates.googleblog.com/2026/03/new-ways-to-customize-and-interact-with-your-content-in-NotebookLM.html
+                </p>
+              </CardContent>
+            </Card>
+          </Section>
+
+          <Section id="seccion-20" title="SECCIÓN 20 — Set de prompts (extenso por categorías)">
+            <div className="space-y-4">
+              {promptSet.map((group) => (
+                <Card key={group.category}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{group.category}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc pl-5 space-y-1 font-mono text-sm">
+                      {group.prompts.map((prompt) => (
+                        <li key={prompt}>{prompt}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="seccion-21" title="SECCIÓN 21 — Prompt engineering avanzado (nivel básico)">
+            <p>
+              Marco práctico recomendado para estudiantes: <strong>C-O-F-R</strong>
+              (Contexto, Objetivo, Formato, Restricciones).
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Plantilla C-O-F-R</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p><strong>Contexto:</strong> Soy estudiante de preparatoria en [materia].</p>
+                  <p><strong>Objetivo:</strong> Quiero entender/preparar [tema].</p>
+                  <p><strong>Formato:</strong> Responde en [tabla/lista/pasos].</p>
+                  <p><strong>Restricciones:</strong> Máximo [N] palabras, incluye [N] ejemplos.</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Ejemplo aplicado</CardTitle>
+                </CardHeader>
+                <CardContent className="font-mono text-sm">
+                  Contexto: Soy estudiante de preparatoria y estoy viendo genética.{"\n"}
+                  Objetivo: Entender diferencia entre genotipo y fenotipo.{"\n"}
+                  Formato: Tabla + 3 ejemplos.{"\n"}
+                  Restricciones: Lenguaje simple, 200 palabras máximo.
+                </CardContent>
+              </Card>
+            </div>
+          </Section>
+
+          <Section id="seccion-22" title="SECCIÓN 22 — Plantillas de prompts reutilizables">
+            <div className="space-y-4">
+              {[
+                {
+                  name: "Plantilla de explicación",
+                  template:
+                    "Explícame [tema] para estudiantes de [edad] en [N] pasos. Incluye ejemplo, analogía y 3 preguntas de repaso.",
+                },
+                {
+                  name: "Plantilla de resumen",
+                  template:
+                    "Resume [texto/fuente] en formato [lista/tabla], destacando ideas clave, conceptos y posibles preguntas de examen.",
+                },
+                {
+                  name: "Plantilla de examen",
+                  template:
+                    "Crea un examen de [materia] con [N] preguntas (fácil/intermedio/difícil), agrega respuestas y explicación breve.",
+                },
+                {
+                  name: "Plantilla de presentación",
+                  template:
+                    "Diseña una presentación sobre [tema] para [audiencia], con [N] diapositivas, objetivo por diapositiva y guion de exposición.",
+                },
+                {
+                  name: "Plantilla de refinamiento",
+                  template:
+                    "Mejora este prompt para que sea claro, específico, con ejemplos, formato de salida y adecuado para estudiantes: [pega prompt].",
+                },
+              ].map((tpl) => (
+                <Card key={tpl.name}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{tpl.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="font-mono text-sm">{tpl.template}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </Section>
+        </div>
+
+        <section id="anexo-prompt-cloud-agent" className="mt-10 scroll-mt-24">
+          <Card className="border-primary/30">
+            <CardHeader>
+              <CardTitle className="text-2xl">ANEXO — Prompt completo para Cloud Agent (copiar y pegar)</CardTitle>
+              <CardDescription>
+                Entregable principal solicitado: versión lista para ejecutar en un agente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <pre className="whitespace-pre-wrap rounded-lg bg-muted p-4 text-xs md:text-sm leading-relaxed">
+{`Actúa como:
+Investigador experto en IA educativa
+Diseñador instruccional
+Especialista en prompting
+Experto en Gemini
+Experto en NotebookLM
+Arquitecto de contenido educativo
+
+Tu tarea es crear un taller completo, profundo y profesional para enseñar a estudiantes de preparatoria a usar eficientemente Gemini y NotebookLM.
+
+El contenido debe ser extenso, detallado, pedagógico, práctico y actualizado.
+La página final debe verse nutrida de contenido, completa, didáctica, profesional y moderna.
+
+Audiencia:
+- Estudiantes de 13 a 18 años
+- Nivel básico a intermedio
+- Público no técnico
+
+Tono:
+- Claro, didáctico, visual, ejemplificado, amigable y educativo
+- Evita lenguaje técnico excesivo
+
+Estructura obligatoria:
+1) Introducción a la IA
+2) Qué es un prompt
+3) Cómo escribir buenos prompts
+4) Cómo usar el mismo LLM para mejorar tus prompts (prompt refinement, iteration, optimization)
+5) Gemini
+6) Features de Gemini (Chat, Deep Research, File analysis, Image generation, Video generation, Long context, Memory, Notebooks, Canvas, Integrations, Gems)
+7) Gems en Gemini (qué son, cómo funcionan, cómo crearlos, usarlos, compartirlos y reutilizarlos; cuándo usar y cuándo no)
+8) Casos de uso de Gemini
+9) Ejemplos de prompts para Gemini
+10) Comparación de prompts (Mal prompt / Buen prompt / Resultado esperado)
+11) NotebookLM
+12) Features de NotebookLM (Document analysis, Source-based answers, Audio/Podcast/Video generation, Slides, Flashcards, Quizzes, Study guides, Mind maps, Infographics, Tables)
+13) Casos de uso de NotebookLM
+14) Ejemplos de prompts para NotebookLM
+15) Comparación Gemini vs NotebookLM (tabla y cuándo usar cada uno)
+16) Actividades para alumnos
+17) Buenas prácticas de prompting
+18) Errores comunes al usar IA
+19) Novedades recientes de Gemini y NotebookLM
+20) Set de prompts (estudio, investigación, resúmenes, presentaciones, videos, audios, exámenes)
+21) Prompt engineering avanzado (nivel básico) con marco: Contexto, Objetivo, Formato, Restricciones
+22) Plantillas de prompts reutilizables
+
+Reglas pedagógicas clave:
+- Enseñar que no hay que escribir el prompt perfecto en el primer intento.
+- Enseñar a usar el mismo LLM para refinar prompts.
+- Incluir loop: prompt inicial -> respuesta -> refinamiento -> prompt optimizado.
+
+Si hay dudas o incertidumbre:
+- Usa MCP de Exa para buscar información reciente.
+- Prioriza features nuevas, cambios recientes, limitaciones y novedades oficiales.
+
+Output esperado:
+- Una página educativa completa, extensa, profesional y lista para usarse en un taller real.`}
+              </pre>
+            </CardContent>
+          </Card>
+        </section>
+
+        <footer className="mt-10 rounded-2xl border bg-card p-6">
+          <p className="text-sm text-muted-foreground">
+            Recomendación de uso docente: impartir este material en 2 bloques (fundamentos + práctica),
+            con actividades colaborativas, revisión de prompts por pares y una entrega final por equipo.
+          </p>
+          <div className="mt-4">
+            <Button asChild>
+              <a href="#seccion-1">Volver al inicio del taller</a>
+            </Button>
+          </div>
+        </footer>
+      </div>
+    </main>
   )
 }
 
