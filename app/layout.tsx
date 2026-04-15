@@ -6,8 +6,9 @@ import { Inter } from "next/font/google"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Professional Portfolio",
-  description: "A modern, minimalist portfolio website for developers",
+  title: "Taller completo: Gemini y NotebookLM para preparatoria",
+  description:
+    "Página educativa extensa y profesional para enseñar Gemini y NotebookLM a estudiantes de 13 a 18 años.",
 }
 
 export default function RootLayout({
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={inter.className}>{children}</body>
     </html>
   )
